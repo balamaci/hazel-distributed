@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<hazelcast xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.1.xsd"
+           xmlns="http://www.hazelcast.com/schema/config"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <group>
+        <name>local</name>
+        <password>dev-pas</password>
+    </group>
+
+    <network>
+        <port auto-increment="true">5701</port>
+        <interfaces enabled="true">
+            <interface>127.0.0.1</interface>
+        </interfaces>
+
+        <join>
+            <multicast enabled="false"/>
+            <tcp-ip enabled="true">
+                <!--<interface>0.0.0.0</interface>-->
+                <!--<members>172.17.0.2:5701, 172.17.0.3:5701, 172.17.0.4:5701, 172.17.0.5:5701</members>-->
+                <members>127.0.0.1:5701, 127.0.0.1:5702</members>
+            </tcp-ip>
+        </join>
+    </network>
+
+
+   <!-- <queue name="default">
+        &lt;!&ndash;
+            Maximum size of the queue. When a JVM's local queue size reaches the maximum,
+            all put/offer operations will get blocked until the queue size
+            of the JVM goes down below the maximum.
+            Any integer between 0 and Integer.MAX_VALUE. 0 means
+            Integer.MAX_VALUE. Default is 0.
+        &ndash;&gt;
+        <max-size>0</max-size>
+
+        <backup-count>0</backup-count>
+        <async-backup-count>0</async-backup-count>
+
+        <item-listeners>
+            <item-listener include-value="true">com.hazelcast.examples.ItemListener</item-listener>
+        </item-listeners>
+
+    </queue>-->
+    <map name="users">
+        <!--
+           Data type that will be used for storing recordMap.
+           Possible values:
+           BINARY (default): keys and values will be stored as binary data
+           OBJECT : values will be stored in their object forms
+           OFFHEAP : values will be stored in non-heap region of JVM
+        -->
+        <in-memory-format>BINARY</in-memory-format>
+        <!--
+            Whether statistical information (hits, creation time, last access time etc.) should be gathered and stored.
+            You can disable if you do not plan to use eviction on your entries.
+        -->
+        <statistics-enabled>true</statistics-enabled>
+        <!--
+            Number of backups. If 1 is set as the backup-count for example,
+            then all entries of the map will be copied to another JVM for
+            fail-safety. 0 means no backup.
+        -->
+        <backup-count>3</backup-count>
+
+        <!--
+            Number of async backups. 0 means no backup.
+        -->
+        <async-backup-count>1</async-backup-count>
+
+        <!--
+            Maximum number of seconds for each item to live.
+            Any integer between 0 and Integer.MAX_VALUE. 0 means infinite. Default is 0.
+        -->
+        <time-to-live-seconds>0</time-to-live-seconds>
+
+        <!--
+            Maximum number of seconds for each item to stay idle (untouched).
+            Any integer between 0 and Integer.MAX_VALUE. 0 means infinite. Default is 0.
+        -->
+        <max-idle-seconds>0</max-idle-seconds>
+        <!--
+            Valid values are:
+            NONE (no eviction),
+            LRU (Least Recently Used),
+            LFU (Least Frequently Used).
+            NONE is the default.
+        -->
+        <eviction-policy>NONE</eviction-policy>
+        <!--
+            Maximum size of the map. When max size is reached,
+            map is evicted based on the policy defined.
+            Any integer between 0 and Integer.MAX_VALUE. 0 means
+            Integer.MAX_VALUE. Default is 0.
+        -->
+        <max-size policy="PER_NODE">0</max-size>
+        <!--
+            When max. size is reached, specified percentage of
+            the map will be evicted. Any integer between 0 and 100.
+            If 25 is set for example, 25% of the entries will
+            get evicted.
+        -->
+        <eviction-percentage>25</eviction-percentage>
+
+        <!--
+            While recovering from split-brain (network partitioning),
+            map entries in the small cluster will merge into the bigger cluster
+            based on the policy set here. When an entry merge into the
+            cluster, there might an existing entry with the same key already.
+            Values of these entries might be different for that same key.
+            Which value should be set for the key? Conflict is resolved by
+            the policy set here. Default policy is PutIfAbsentMapMergePolicy
+
+            There are built-in merge policies such as
+            com.hazelcast.map.merge.PassThroughMergePolicy; entry will be added if there is no existing entry for the key.
+            com.hazelcast.map.merge.PutIfAbsentMapMergePolicy ; entry will be added if the merging entry doesn't exist in the cluster.
+            com.hazelcast.map.merge.HigherHitsMapMergePolicy ; entry with the higher hits wins.
+            com.hazelcast.map.merge.LatestUpdateMapMergePolicy ; entry with the latest update wins.
+        -->
+        <merge-policy>com.hazelcast.map.merge.PassThroughMergePolicy</merge-policy>
+
+<!--
+        <map-store enabled="true">
+            <class-name>com.hazelcast.examples.DummyStore</class-name>
+            &lt;!&ndash;         	<factory-class-name>com.hazelcast.examples.DummyStoreFactory</factory-class-name> &ndash;&gt;
+            <write-delay-seconds>0</write-delay-seconds>
+            <properties>
+                <property name="dummy.property">value</property>
+            </properties>
+        </map-store>
+-->
+
+        <near-cache>
+            <max-size>10000</max-size>
+            <time-to-live-seconds>0</time-to-live-seconds>
+            <max-idle-seconds>0</max-idle-seconds>
+            <eviction-policy>LFU</eviction-policy>
+            <invalidate-on-change>true</invalidate-on-change>
+        </near-cache>
+
+<!--
+        <wan-replication-ref name="my-wan-cluster">
+            <merge-policy>hz.PASS_THROUGH</merge-policy>
+        </wan-replication-ref>
+-->
+
+        <indexes>
+            <index ordered="false">id</index>
+            <index ordered="false">clientNr</index>
+        </indexes>
+
+<!--
+        <entry-listeners>
+            <entry-listener include-value="true" local="false">com.hazelcast.examples.EntryListener</entry-listener>
+        </entry-listeners>
+-->
+
+    </map>
+
+    <!--
+    <multimap name="default">
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <value-collection-type>SET</value-collection-type>
+        <entry-listeners>
+            <entry-listener include-value="true" local="true">com.hazelcast.examples.EntryListener</entry-listener>
+        </entry-listeners>
+    </multimap>
+
+    <list name="default">
+        <statistics-enabled>false</statistics-enabled>
+        <max-size>0</max-size>
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <item-listeners>
+            <item-listener include-value="true">com.hazelcast.examples.ItemListener</item-listener>
+        </item-listeners>
+    </list>
+
+    <set name="default">
+        <statistics-enabled>false</statistics-enabled>
+        <max-size>0</max-size>
+        <backup-count>1</backup-count>
+        <async-backup-count>0</async-backup-count>
+        <item-listeners>
+            <item-listener include-value="true">com.hazelcast.examples.ItemListener</item-listener>
+        </item-listeners>
+    </set>
+
+    <topic name="default">
+        <message-listeners>
+            <message-listener>com.hazelcast.examples.MessageListener</message-listener>
+        </message-listeners>
+    </topic>
+
+-->
+
+    <listeners>
+        <listener>com.balamaci.hztest.listener.HzMembershipListener</listener>
+<!--
+        <listener>com.hazelcast.examples.InstanceListener</listener>
+        <listener>com.hazelcast.examples.MigrationListener</listener>
+-->
+    </listeners>
+
+<!--
+    <services enable-defaults="false">
+        <service enabled="true">
+            <name>custom-service</name>
+            <class-name>com.hazelcast.examples.MyService</class-name>
+            <properties>
+                <property name="prop1">prop1-value</property>
+                <property name="prop2">prop2-value</property>
+            </properties>
+        </service>
+    </services>
+-->
+
+
+</hazelcast>
